@@ -1,0 +1,633 @@
+/* ========================================
+   AMILTON CONTABILIDADE - ASSISTENTE VIRTUAL
+   CSS com Bootstrap - Vanilla JavaScript
+   Paleta: Marfim & Cedro Dourado v4.0
+   ======================================== */
+
+:root {
+    /* ── Paleta principal — alinhada ao sistema de design ── */
+    --ac-primary:       #1E7A6E;   /* verde-azulado principal */
+    --ac-primary-dark:  #145548;   /* verde escuro — hover / gradiente */
+    --ac-primary-light: #3DA899;   /* verde médio — destaques sutis */
+    --ac-accent:        #D4A017;   /* dourado âmbar — acento premium */
+    --ac-accent-light:  #F5D060;   /* dourado claro */
+
+    /* ── Fundos ── */
+    --ac-bg:            #FDFAF5;   /* marfim — fundo da área de mensagens */
+    --ac-surface:       #F5EFE0;   /* creme — superfícies */
+    --ac-elevated:      #EDE3CC;   /* areia — bordas e divisores */
+    --ac-white:         #FFFFFF;
+
+    /* ── Texto ── */
+    --ac-text:          #0C3830;   /* verde muito escuro — corpo */
+    --ac-text-secondary:#2A5C52;   /* verde médio */
+    --ac-text-muted:    #7A6640;   /* ocre — texto de apoio */
+
+    /* ── Bordas ── */
+    --ac-border:        rgba(90, 74, 42, 0.15);
+    --ac-border-subtle: rgba(90, 74, 42, 0.08);
+
+    /* ── Sombras quentes (harmônicas com o fundo claro) ── */
+    --shadow-sm: 0 2px 8px  rgba(90, 74, 42, 0.10);
+    --shadow-md: 0 4px 16px rgba(90, 74, 42, 0.13);
+    --shadow-lg: 0 8px 24px rgba(90, 74, 42, 0.16);
+    --shadow-xl: 0 12px 32px rgba(90, 74, 42, 0.20);
+
+    /* ── Transições ── */
+    --transition:      all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* ========================================
+   BOTÃO FLUTUANTE
+   ======================================== */
+
+.floating-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ac-primary) 0%, var(--ac-primary-dark) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg), 0 0 0 4px rgba(30, 122, 110, 0.12);
+    z-index: 999;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+}
+
+.floating-btn:hover {
+    transform: scale(1.12) translateY(-2px);
+    box-shadow: var(--shadow-xl), 0 0 0 6px rgba(30, 122, 110, 0.15);
+}
+
+.floating-btn:active {
+    transform: scale(1.08);
+}
+
+.floating-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0);
+    border-radius: 50%;
+    transition: background 0.3s ease;
+}
+
+.floating-btn:hover::before {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ========================================
+   MODAL DO CHAT
+   ======================================== */
+
+.chat-modal {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 380px;
+    height: 550px;
+    background: var(--ac-white);
+    border-radius: 16px;
+    box-shadow: var(--shadow-xl);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+    border: 1px solid var(--ac-border);
+    animation: slideUpEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.chat-modal.active {
+    display: flex;
+}
+
+.chat-modal.closing {
+    animation: slideDownExit 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes slideUpEnter {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+@keyframes slideDownExit {
+    from { opacity: 1; transform: translateY(0)    scale(1);    }
+    to   { opacity: 0; transform: translateY(20px) scale(0.95); }
+}
+
+
+/* ========================================
+   HEADER DO CHAT
+   Verde escuro nobre — consistente com CTA banner e footer
+   ======================================== */
+
+.chat-header {
+    background: linear-gradient(135deg, #1C3A3A 0%, var(--ac-primary-dark) 60%, var(--ac-primary) 100%);
+    color: #fff;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ── Reflexo dourado sutil no hover ── */
+.chat-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 160, 23, 0.08), transparent);
+    transition: left 0.6s ease;
+}
+
+.chat-header:hover::after {
+    left: 100%;
+}
+
+.chat-header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.chat-avatar {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+.chat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.chat-title {
+    margin: 0;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #F5EFE0;
+}
+
+.chat-status {
+    font-size: 0.75rem;
+    color: rgba(245, 239, 224, 0.7);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ── Ponto de status — dourado âmbar ── */
+.status-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--ac-accent-light);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
+}
+
+.btn-close-chat {
+    background: none;
+    border: none;
+    color: rgba(245, 239, 224, 0.8);
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: var(--transition-fast);
+    position: relative;
+    z-index: 1;
+}
+
+.btn-close-chat:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+
+/* ========================================
+   ÁREA DE MENSAGENS
+   Fundo marfim — consistente com bg-base da página
+   ======================================== */
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--ac-bg);
+    scroll-behavior: smooth;
+}
+
+.chat-messages::-webkit-scrollbar       { width: 5px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--ac-elevated);
+    border-radius: 3px;
+}
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: var(--ac-primary-light);
+}
+
+
+/* ========================================
+   MENSAGENS
+   ======================================== */
+
+.message {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    position: relative;
+    animation: messageSlideIn 0.3s ease-out;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+@keyframes messageSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Mensagem do bot — branco sobre fundo marfim ── */
+.message.bot {
+    align-self: flex-start;
+    background-color: var(--ac-white);
+    color: var(--ac-text);
+    border-bottom-left-radius: 2px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--ac-border);
+}
+
+.message.bot::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 12px;
+    width: 0;
+    height: 0;
+    border-left:   8px solid var(--ac-white);
+    border-top:    4px solid transparent;
+    border-bottom: 4px solid transparent;
+}
+
+/* ── Mensagem do usuário — verde primário ── */
+.message.user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, var(--ac-primary) 0%, var(--ac-primary-dark) 100%);
+    color: #fff;
+    border-bottom-right-radius: 2px;
+    font-weight: 500;
+    box-shadow: var(--shadow-md);
+}
+
+.message.user::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 12px;
+    width: 0;
+    height: 0;
+    border-right:  8px solid var(--ac-primary-dark);
+    border-top:    4px solid transparent;
+    border-bottom: 4px solid transparent;
+}
+
+
+/* ========================================
+   INDICADOR DE DIGITAÇÃO
+   ======================================== */
+
+.typing-indicator {
+    display: none;
+    align-self: flex-start;
+    background: var(--ac-white);
+    padding: 12px 16px;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--ac-border-subtle);
+    gap: 4px;
+    align-items: center;
+}
+
+.typing-indicator span {
+    height: 8px;
+    width: 8px;
+    background: var(--ac-primary);
+    display: inline-block;
+    border-radius: 50%;
+    margin-right: 2px;
+    animation: typingBounce 1.4s infinite;
+    opacity: 0.6;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: 0s;   }
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0);  opacity: 0.6; }
+    30%           { transform: translateY(-8px); opacity: 1;  }
+}
+
+
+/* ========================================
+   INPUT DO CHAT
+   ======================================== */
+
+.chat-input-container {
+    display: flex;
+    gap: 8px;
+    padding: 16px;
+    background: var(--ac-white);
+    border-top: 1px solid var(--ac-border);
+}
+
+.chat-input-container[style*="display: none"] {
+    display: none !important;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--ac-border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    color: var(--ac-text);
+    background: var(--ac-bg);
+    transition: var(--transition-fast);
+    outline: none;
+}
+
+.chat-input:focus {
+    border-color: var(--ac-primary);
+    background: var(--ac-white);
+    box-shadow: 0 0 0 3px rgba(30, 122, 110, 0.1);
+}
+
+.chat-input::placeholder {
+    color: var(--ac-text-muted);
+    opacity: 0.7;
+}
+
+.chat-textarea {
+    resize: none;
+    min-height: 60px;
+    max-height: 120px;
+    padding: 12px 16px;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* ── Botão enviar — verde primário ── */
+.btn-send {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--ac-primary) 0%, var(--ac-primary-dark) 100%);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+    outline: none;
+}
+
+.btn-send:hover  { transform: scale(1.05); box-shadow: var(--shadow-md); }
+.btn-send:active { transform: scale(0.95); }
+
+
+/* ========================================
+   BOTÕES DE AÇÃO (Quick Replies)
+   ======================================== */
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.action-btn {
+    background: var(--ac-white);
+    border: 1.5px solid var(--ac-primary);
+    color: var(--ac-primary);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+    text-align: left;
+    width: 100%;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.2px;
+}
+
+/* ── Preenchimento deslizante ao hover ── */
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--ac-primary);
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.action-btn:hover::before { left: 0; }
+
+.action-btn:hover {
+    color: #fff;
+    transform: translateX(5px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--ac-primary-dark);
+}
+
+.action-btn:active {
+    transform: translateX(3px);
+}
+
+
+/* ========================================
+   RESPONSIVIDADE
+   ======================================== */
+
+@media (max-width: 768px) {
+    .chat-modal {
+        width: calc(100% - 40px);
+        max-width: 380px;
+        right: 20px;
+        bottom: 90px;
+        height: 500px;
+        max-height: 70vh;
+    }
+
+    .floating-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        font-size: 1.3rem;
+    }
+
+    .message { max-width: 90%; }
+}
+
+@media (max-width: 425px) {
+    .chat-modal {
+        width: calc(100% - 30px);
+        right: 15px;
+        bottom: 85px;
+        height: 480px;
+        max-height: 65vh;
+    }
+
+    .floating-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 52px;
+        height: 52px;
+        font-size: 1.2rem;
+    }
+
+    .message {
+        max-width: 92%;
+        padding: 12px 16px;
+        font-size: 0.88rem;
+    }
+
+    .chat-title   { font-size: 0.85rem; }
+    .chat-status  { font-size: 0.7rem;  }
+    .chat-avatar  { width: 38px; height: 38px; }
+
+    .action-btn {
+        padding: 12px;
+        font-size: 0.8rem;
+    }
+
+    .chat-input-container {
+        padding: 12px;
+        gap: 6px;
+    }
+
+    .chat-input {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .btn-send {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+}
+
+
+/* ========================================
+   ACESSIBILIDADE
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+    .message.bot {
+        background-color: var(--ac-white);
+        color: var(--ac-text);
+        border-color: var(--ac-border);
+    }
+
+    .message.bot::before {
+        border-left-color: var(--ac-white);
+    }
+
+    .chat-input {
+        background: var(--ac-white);
+        color: var(--ac-text);
+        border-color: var(--ac-border);
+    }
+
+    .action-btn {
+        background: var(--ac-white);
+        color: var(--ac-primary-light);
+        border-color: var(--ac-primary-light);
+    }
+
+    .typing-indicator {
+        background: var(--ac-white);
+        border-color: var(--ac-border-subtle);
+    }
+}
+
+
+/* ========================================
+   UTILITÁRIOS
+   ======================================== */
+
+.text-center { text-align: center; }
+.mt-5        { margin-top: 3rem;   }
+.mb-5        { margin-bottom: 3rem; }
+.hidden      { display: none !important;  }
+.visible     { display: block !important; }
