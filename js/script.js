@@ -57,56 +57,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ── Smooth scroll ── */
 
-  /**
-   * Retorna o topo absoluto de um elemento em relação ao documento,
-   * somando todos os offsetTop recursivamente até o body.
-   * Mais confiável que offsetTop sozinho quando há ancestrais
-   * com position: relative / sticky / absolute.
-   */
-  function getAbsoluteTop(el) {
-    let top = 0;
-    let current = el;
-    while (current) {
-      top += current.offsetTop;
-      current = current.offsetParent;
-    }
-    return top;
-  }
+  // Lógica de Scroll Spy (Destaque do Menu Ativo)
+  window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          // Ajuste de -200px para detecção antecipada (igual à referência)
+          if (window.scrollY >= sectionTop - 200) {
+              current = section.getAttribute('id');
+          }
+      });
+      
+      navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href').slice(1) === current) {
+              link.classList.add('active');
+          }
+      });
+  }, { passive: true });
 
-  /**
-   * Retorna a altura atual da navbar via getBoundingClientRect,
-   * capturando o valor real renderizado (inclusive no estado "scrolled").
-   */
-  function getNavHeight() {
-    const nav = document.getElementById('mainNav');
-    if (!nav) return 0;
-    return nav.getBoundingClientRect().height;
-  }
-
-  /** Folga visual abaixo da navbar (px). */
-  const SCROLL_OFFSET = 16;
-
-  function scrollToSection(targetEl) {
-    const absoluteTop = getAbsoluteTop(targetEl);
-    const navH        = getNavHeight();
-    const scrollTo    = absoluteTop - navH - SCROLL_OFFSET;
-    window.scrollTo({ top: Math.max(0, scrollTo), behavior: 'smooth' });
-  }
-
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href');
-      if (!href || href === '#') return;
-      const target = document.querySelector(href);
-      if (!target) return;
-      e.preventDefault();
-      scrollToSection(target);
-      const collapse = document.getElementById('navbarNav');
-      if (collapse?.classList.contains('show')) {
-        bootstrap.Collapse.getInstance(collapse)?.hide();
-      }
-    });
+  // Smooth Scroll com compensação manual (Segurança extra)
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+              e.preventDefault();
+              const offsetTop = target.offsetTop - 80; // Offset exato da referência
+              window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+              
+              // Fecha o menu mobile automaticamente ao clicar
+              const bsCollapse = bootstrap.Collapse.getInstance(document.getElementById('navbarNav'));
+              if (bsCollapse) bsCollapse.hide();
+          }
+      });
   });
+
+
 
   /* ── Active nav link ── */
   const sections = document.querySelectorAll('section[id]');
@@ -318,72 +304,62 @@ document.addEventListener('DOMContentLoaded', function () {
           <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">
             <span>${r.name}</span>
             ${isBest ? `<span class="badge" style="background:var(--p-600)">MELHOR</span>` : ''}
-            ${!r.eligible ? `<span class="badge" style="background:rgba(248,113,113,.15);color:var(--r-400)">INELEGÍVEL</span>` : ''}
+            ${!r.eligible ? `<span class="badge" style="background:rgba(248,113,113,0.1);color:var(--r-500)">NÃO ELEGÍVEL</span>` : ''}
           </div>
-          ${r.eligible ? `<div class="tax-bar-wrap"><div class="tax-bar-fill" style="width:${barPct}%;background:${barColor}"></div></div>` : ''}
         </td>
-        <td class="text-end text-secondary" style="white-space:nowrap">${r.eligible ? (r.rate*100).toFixed(2)+'%' : '—'}</td>
-        <td class="text-end fw-bold${isBest ? ' text-success' : ''}" style="white-space:nowrap">${r.eligible ? 'R$ '+fmt(r.tax) : '—'}</td>`;
+        <td>
+          <div class="tax-bar-wrap">
+            <div class="tax-bar-fill" style="width:${barPct}%;background:${barColor}"></div>
+          </div>
+        </td>
+        <td class="text-end fw-bold" style="color:${isBest ? 'var(--p-700)' : 'inherit'}">
+          ${r.eligible ? formatCurrency(r.tax) : '—'}
+        </td>
+      `;
       tableBody.appendChild(tr);
     });
   }
 
   function renderHeader(best) {
     if (bestName) bestName.textContent = best.name;
-    if (!bestReason) return;
-    const reasons = {
-      simples: 'Regime simplificado com uma guia única (DAS). Menor burocracia e carga para o seu perfil.',
-      presumido: 'Para o seu faturamento e atividade, a presunção de lucro resulta em carga menor.',
-      real: 'Com a margem informada, tributar o lucro efetivo gera economia real — especialmente com despesas dedutíveis.',
-    };
-    bestReason.textContent = reasons[best.id] || '';
+    if (bestReason) {
+      bestReason.textContent = best.id === 'simples' ? 'Ideal para empresas com faturamento até R$ 4,8M e carga tributária simplificada.' :
+                               best.id === 'presumido' ? 'Indicado quando a margem de lucro real é superior à presunção legal.' :
+                               'Recomendado para empresas com margens de lucro reduzidas ou altos custos operacionais.';
+    }
   }
 
   function renderSavings(eligible) {
     if (eligible.length < 2) {
-      if (savingsText) savingsText.innerHTML = 'Apenas um regime elegível para o seu perfil.';
-      if (savingsYearly) savingsYearly.textContent = '';
+      if (savingsText) savingsText.textContent = 'Este é o único regime disponível para seu porte.';
+      if (savingsYearly) savingsYearly.textContent = 'Consulte um especialista para otimização.';
       return;
     }
-    const diff   = eligible[1].tax - eligible[0].tax;
-    const yearly = diff * 12;
-    if (savingsText) savingsText.innerHTML = `No regime ideal, você pode economizar até <strong style="color:var(--g-400)">R$ ${fmt(diff)}</strong>/mês.`;
-    if (savingsYearly) savingsYearly.textContent = `Equivalente a R$ ${fmt(yearly)} ao ano — capital que pode ser reinvestido no negócio.`;
+    const best = eligible[0];
+    const worst = eligible[eligible.length - 1];
+    const diff = worst.tax - best.tax;
+    if (savingsText) savingsText.textContent = `Economia mensal de até ${formatCurrency(diff)}`;
+    if (savingsYearly) savingsYearly.textContent = `Totalizando ${formatCurrency(diff * 12)} por ano.`;
   }
 
   function renderEligNotes(sorted) {
     if (!eligNotes) return;
-    const ineligible = sorted.filter(r => !r.eligible);
-    if (!ineligible.length) { eligNotes.style.display = 'none'; eligNotes.innerHTML = ''; return; }
-    eligNotes.style.display = 'block';
-    eligNotes.innerHTML = ineligible.map(r => `
-      <div style="display:flex;align-items:flex-start;gap:.4rem;font-size:var(--text-xs);color:var(--a-400);margin-bottom:.35rem">
-        <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0;margin-top:2px"></i>
-        <span><strong>${r.name}</strong>: ${r.note}</span>
-      </div>`).join('');
+    eligNotes.innerHTML = '';
+    sorted.forEach(r => {
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${r.name}:</strong> ${r.note}`;
+      eligNotes.appendChild(li);
+    });
   }
 
   function updateWA(best, revenue, activity) {
     if (!whatsappCta) return;
-    const acts = { comercio:'Comércio', industria:'Indústria', servicos_simples:'Serviços (Anexo III)', servicos_fator_r:'Serviços (Fator R)', servicos_alta:'Serviços (Anexo V)' };
-    const msg = encodeURIComponent(
-      `Olá! Fiz a simulação no site da Amilton Contabilidade.\n\n` +
-      `📊 Faturamento mensal: R$ ${fmt(revenue)}\n` +
-      `🏢 Atividade: ${acts[activity] || activity}\n` +
-      `✅ Regime recomendado: ${best.name}\n` +
-      `💰 Imposto estimado: R$ ${fmt(best.tax)}/mês\n\n` +
-      `Gostaria de validar esses dados e fazer o planejamento tributário.`
-    );
-    whatsappCta.href = `https://wa.me/5547991597258?text=${msg}`;
+    const text = `Olá! Fiz a simulação no site e o resultado foi ${best.name}. Meu faturamento mensal é de ${formatCurrency(revenue)} no setor de ${activity}. Gostaria de uma análise detalhada.`;
+    whatsappCta.href = `https://wa.me/5547991597258?text=${encodeURIComponent(text)}`;
   }
 
   /* ── Helpers ── */
-  function parseRevenue(val) {
-    return parseFloat(String(val).replace(/\./g,'').replace(',','.').replace(/[^\d.]/g,''));
-  }
-
-  function fmt(value) {
-    return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
+  function parseRevenue(str) { return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0; }
+  function formatCurrency(val) { return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 
 });

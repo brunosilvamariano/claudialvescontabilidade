@@ -238,11 +238,10 @@
 }
 
 html {
-  scroll-behavior: smooth;
-  font-size: 100%;
-  overflow-x: hidden;
+    scroll-behavior: smooth !important;
+    scroll-padding-top: 80px; /* Garante que o título não fique sob a navbar */
+    overflow-x: hidden;
 }
-
 body {
   font-family: var(--font-body);
   font-size: var(--text-base);
@@ -325,19 +324,12 @@ input, button, textarea, select {
   color: var(--p-900);
 }
 
-/* ── Barra de rolagem personalizada ── */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--n-100);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--n-300);
-  border-radius: var(--radius-full);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--p-400);
+/* Barra de rolagem refinada (Estilo Higienização) */
+::-webkit-scrollbar { width: 7px; }
+::-webkit-scrollbar-track { background: #F5EFE0; }
+::-webkit-scrollbar-thumb { 
+    background: #D9C9A3; 
+    border-radius: 9999px; 
 }
 
 
@@ -623,21 +615,14 @@ input, button, textarea, select {
 
 /* ── Estado ao rolar — fundo marfim com leve sombra ── */
 .navbar.scrolled {
-  padding: 1.65rem 0;
-  background-color: rgba(253, 250, 245, 0.97);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-bottom-color: var(--border-default);
-  box-shadow: 0 4px 24px rgba(90, 74, 42, 0.1);
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 1.5rem 0; /* Aumenta levemente a área de toque */
 }
 
 /* ── Logo ── */
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  padding: 0;
-  flex-shrink: 0;
-}
+.navbar-brand { display: flex; align-items: center; padding: 0; }
 
 .logo-img {
   height: clamp(36px, 5vw, 52px);
@@ -645,9 +630,7 @@ input, button, textarea, select {
   object-fit: contain;
   transition: height var(--transition-smooth);
 }
-.navbar.scrolled .logo-img {
-  height: clamp(30px, 4vw, 42px);
-}
+.navbar.scrolled .logo-img { height: clamp(34px, 4vw, 46px); }
 
 /* ── Links de navegação ── */
 .navbar-nav {
@@ -764,10 +747,6 @@ input, button, textarea, select {
     margin: var(--space-4) var(--space-3) var(--space-2);
     justify-content: center;
     width: calc(100% - var(--space-6));
-  }
-
-   .btn-scroll-top{
-    margin-right: 0.9rem;
   }
 }
 
@@ -1763,11 +1742,7 @@ input, button, textarea, select {
   .about-inner            { max-width: 640px; text-align: center; }
   .about-inner .section-eyebrow { display: flex; justify-content: center; }
 }
-@media (max-width: 1559px){
-  .btn-scroll-top{
-    margin-right: 2px;
-  }
-}
+
 
 /* ══════════════════════════════════════════════════════════════
    12. DEPOIMENTOS
@@ -2394,7 +2369,7 @@ input, button, textarea, select {
 .btn-scroll-top {
   position: fixed;
   bottom: clamp(80px, 12vh, 100px);
-  right: clamp(1rem, 3vw, 2.25rem);
+  right: clamp(1rem, 2vw, 2.35rem);
   width: 44px;
   height: 44px;
   background: var(--n-0);
