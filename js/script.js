@@ -56,13 +56,51 @@ document.addEventListener('DOMContentLoaded', function () {
   counters.forEach(c => counterObserver.observe(c));
 
   /* ── Smooth scroll ── */
+
+  /**
+   * Retorna o topo absoluto de um elemento em relação ao documento,
+   * somando todos os offsetTop recursivamente até o body.
+   * Mais confiável que offsetTop sozinho quando há ancestrais
+   * com position: relative / sticky / absolute.
+   */
+  function getAbsoluteTop(el) {
+    let top = 0;
+    let current = el;
+    while (current) {
+      top += current.offsetTop;
+      current = current.offsetParent;
+    }
+    return top;
+  }
+
+  /**
+   * Retorna a altura atual da navbar via getBoundingClientRect,
+   * capturando o valor real renderizado (inclusive no estado "scrolled").
+   */
+  function getNavHeight() {
+    const nav = document.getElementById('mainNav');
+    if (!nav) return 0;
+    return nav.getBoundingClientRect().height;
+  }
+
+  /** Folga visual abaixo da navbar (px). */
+  const SCROLL_OFFSET = 16;
+
+  function scrollToSection(targetEl) {
+    const absoluteTop = getAbsoluteTop(targetEl);
+    const navH        = getNavHeight();
+    const scrollTo    = absoluteTop - navH - SCROLL_OFFSET;
+    window.scrollTo({ top: Math.max(0, scrollTo), behavior: 'smooth' });
+  }
+
   document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener('click', (e) => {
-      const target = document.querySelector(link.getAttribute('href'));
+      const href = link.getAttribute('href');
+      if (!href || href === '#') return;
+      const target = document.querySelector(href);
       if (!target) return;
       e.preventDefault();
-      const navH = document.getElementById('mainNav')?.offsetHeight || 0;
-      window.scrollTo({ top: target.offsetTop - navH - 8, behavior: 'smooth' });
+      scrollToSection(target);
       const collapse = document.getElementById('navbarNav');
       if (collapse?.classList.contains('show')) {
         bootstrap.Collapse.getInstance(collapse)?.hide();
@@ -73,17 +111,28 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ── Active nav link ── */
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.nav-link');
-  window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY + 120;
+
+  function updateActiveLink() {
+    const navH      = getNavHeight();
+    // Ponto de referência: logo abaixo da navbar + folga
+    const threshold = window.scrollY + navH + SCROLL_OFFSET + 1;
+
+    let activeSection = null;
     sections.forEach(sec => {
-      if (scrollY >= sec.offsetTop && scrollY < sec.offsetTop + sec.offsetHeight) {
-        navLinks.forEach(l => {
-          l.classList.remove('active');
-          if (l.getAttribute('href') === '#' + sec.id) l.classList.add('active');
-        });
+      if (threshold >= getAbsoluteTop(sec)) activeSection = sec;
+    });
+
+    navLinks.forEach(l => {
+      l.classList.remove('active');
+      if (activeSection && l.getAttribute('href') === '#' + activeSection.id) {
+        l.classList.add('active');
       }
     });
-  }, { passive: true });
+  }
+
+  window.addEventListener('scroll', updateActiveLink, { passive: true });
+  // Marca o link correto caso a página abra com hash na URL
+  updateActiveLink();
 
 
   /* ═══════════════════════════════════════════════════════════════

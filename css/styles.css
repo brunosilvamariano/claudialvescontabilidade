@@ -1768,20 +1768,6 @@ input, button, textarea, select {
     margin-right: 2px;
   }
 }
-@media (max-width: 820px){
-  .btn-scroll-top{
-    margin-right: 0.8rem;
-  }
-}
-@media (max-width: 576px) {
-  .about-stats { grid-template-columns: 1fr; gap: var(--space-3); }
-
-  .btn-scroll-top{
-    margin-right: 0.6rem;
-    margin-bottom: -18px
-  }
-}
-
 
 /* ══════════════════════════════════════════════════════════════
    12. DEPOIMENTOS
